@@ -79,10 +79,10 @@ export class MemStorage implements IStorage {
       checkPeriod: 86400000 // prune expired entries every 24h
     });
     
-    // Create demo user
+    // Create demo user - will be overridden with the hashed password by auth.ts later
     this.createUser({
       username: "teacher",
-      password: "password123", // This would be hashed in a real app
+      password: "fc93b4c201b23a6654d94560250072c07e8759d526b4d69402f5a6aad862d3d17f93c4d56bdc3f9d7b1ead3da3af245c0feb0e80fb5330a89272bb1a9d7cae3.ca7bf82e35c9f12d",
       name: "Jane Doe",
       email: "teacher@example.com",
       role: "educator"
