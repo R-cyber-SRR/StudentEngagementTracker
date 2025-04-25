@@ -6,6 +6,10 @@ import {
   alerts, type Alert, type InsertAlert,
   type StudentEngagementData
 } from "@shared/schema";
+import session from "express-session";
+import createMemoryStore from "memorystore";
+
+const MemoryStore = createMemoryStore(session);
 
 // modify the interface with any CRUD methods
 // you might need
@@ -37,6 +41,9 @@ export interface IStorage {
   createAlert(alert: InsertAlert): Promise<Alert>;
   getAlertsBySession(sessionId: number, limit?: number): Promise<Alert[]>;
   resolveAlert(id: number): Promise<Alert | undefined>;
+  
+  // Session store for auth
+  sessionStore: any;
 }
 
 export class MemStorage implements IStorage {
@@ -51,6 +58,8 @@ export class MemStorage implements IStorage {
   private eventId: number;
   private sessionId: number;
   private alertId: number;
+  
+  public sessionStore: any;
 
   constructor() {
     this.users = new Map();
@@ -64,6 +73,20 @@ export class MemStorage implements IStorage {
     this.eventId = 1;
     this.sessionId = 1;
     this.alertId = 1;
+    
+    // Create session store for auth
+    this.sessionStore = new MemoryStore({
+      checkPeriod: 86400000 // prune expired entries every 24h
+    });
+    
+    // Create demo user
+    this.createUser({
+      username: "teacher",
+      password: "password123", // This would be hashed in a real app
+      name: "Jane Doe",
+      email: "teacher@example.com",
+      role: "educator"
+    });
     
     // Create some initial data
     this.createSession({
@@ -146,6 +169,7 @@ export class MemStorage implements IStorage {
     const event: ActivityEvent = {
       ...insertEvent,
       id,
+      data: insertEvent.data || null, // Ensure data is not undefined
       timestamp: new Date()
     };
     this.activityEvents.push(event);

@@ -1,11 +1,20 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupWebSocketServer, getEngagementHistory } from "./websocket";
+import { setupAuth } from "./auth";
+
+// Middleware to ensure user is authenticated
+const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.status(401).json({ message: "You must be logged in to access this resource" });
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // put application routes here
-  // prefix all routes with /api
+  // Setup authentication
+  setupAuth(app);
   
   // Create HTTP server
   const httpServer = createServer(app);
